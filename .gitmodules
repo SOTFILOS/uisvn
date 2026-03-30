@@ -1,0 +1,3 @@
+[submodule "excel-importer"]
+	path = excel-importer
+	url = https://github.com/SOTFILOS/uisvn.git
