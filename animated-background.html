@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animated Background</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    canvas { position: fixed; top: 0; left: 0; z-index: 0; }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      color: #fff;
+    }
+    .content h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-shadow: 0 0 40px rgba(255,255,255,0.8);
+      animation: float 4s ease-in-out infinite;
+    }
+    .content p {
+      margin-top: 0.8rem;
+      font-size: 1rem;
+      opacity: 0.7;
+      letter-spacing: 0.2em;
+      animation: float 4s ease-in-out infinite reverse;
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0px); }
+      50%      { transform: translateY(-12px); }
+    }
+
+    .toggle-btn {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      background: #ff3cac;
+      border: none;
+      color: #fff;
+      padding: 16px 40px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      box-shadow: 0 0 30px #ff3cac, 0 4px 20px rgba(0,0,0,0.5);
+      transition: all 0.3s;
+      user-select: none;
+    }
+    .toggle-btn:hover {
+      background: #784ba0;
+      box-shadow: 0 0 40px #784ba0, 0 4px 20px rgba(0,0,0,0.5);
+      transform: translateX(-50%) scale(1.08);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg"></canvas>
+
+  <button class="toggle-btn" onclick="toggleMode()">
+    <span class="icon">🌙</span> <span class="label">Dark Mode</span>
+  </button>
+
+  <div class="content">
+    <h1>ANIMATED</h1>
+    <p>particle background</p>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('bg');
+    const ctx = canvas.getContext('2d');
+    let W = canvas.width  = window.innerWidth;
+    let H = canvas.height = window.innerHeight;
+    window.addEventListener('resize', () => {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    });
+
+    let darkMode = false;
+    let hue = 0;
+    let time = 0;
+
+    const THEMES = {
+      light: {
+        bg1: (h) => `hsl(${h}, 90%, 50%)`,
+        bg2: (h) => `hsl(${(h+60)%360}, 100%, 65%)`,
+        particleHue: () => Math.random() * 360,
+        lineColor: (a) => `rgba(255,255,255,${a})`,
+        btnLabel: 'Dark Mode', btnIcon: '🌙'
+      },
+      dark: {
+        bg1: (h) => `hsl(${h}, 60%, 5%)`,
+        bg2: (h) => `hsl(${(h+40)%360}, 70%, 2%)`,
+        particleHue: () => Math.random() * 60 + 190,
+        lineColor: (a) => `rgba(100,200,255,${a})`,
+        btnLabel: 'Light Mode', btnIcon: '☀️'
+      }
+    };
+
+    function theme() { return darkMode ? THEMES.dark : THEMES.light; }
+
+    function toggleMode() {
+      darkMode = !darkMode;
+      const t = theme();
+      document.querySelector('.toggle-btn .label').textContent = t.btnLabel;
+      document.querySelector('.toggle-btn .icon').textContent  = t.btnIcon;
+      particles.forEach(p => p.hue = theme().particleHue());
+    }
+
+    // ---- MOUSE ----
+    const mouse = { x: W/2, y: H/2 };
+    window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+
+    // ---- PARTICLES ----
+    const COUNT = 150;
+    const particles = [];
+
+    class Particle {
+      constructor() { this.reset(true); }
+      reset(init = false) {
+        this.x  = init ? Math.random() * W : Math.random() * W;
+        this.y  = init ? Math.random() * H : Math.random() * H;
+        this.ox = this.x;
+        this.oy = this.y;
+        this.vx = (Math.random() - 0.5) * 1.5;
+        this.vy = (Math.random() - 0.5) * 1.5;
+        this.radius = Math.random() * 3 + 1;
+        this.alpha  = Math.random() * 0.7 + 0.3;
+        this.hue    = theme().particleHue();
+        this.speed  = Math.random() * 0.02 + 0.005;
+        this.offset = Math.random() * Math.PI * 2;
+        this.wobble = Math.random() * 1.5;
+        this.trail  = [];
+      }
+
+      update(t) {
+        // Sine wave wobble on top of linear movement
+        this.x += this.vx + Math.sin(t * this.speed + this.offset) * this.wobble;
+        this.y += this.vy + Math.cos(t * this.speed * 0.7 + this.offset) * this.wobble;
+
+        // Mouse repulsion
+        const dx = this.x - mouse.x;
+        const dy = this.y - mouse.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 120) {
+          const force = (120 - dist) / 120;
+          this.x += (dx / dist) * force * 5;
+          this.y += (dy / dist) * force * 5;
+        }
+
+        // Trail
+        this.trail.push({ x: this.x, y: this.y });
+        if (this.trail.length > 12) this.trail.shift();
+
+        // Wrap edges
+        if (this.x < -20) this.x = W + 20;
+        if (this.x > W+20) this.x = -20;
+        if (this.y < -20) this.y = H + 20;
+        if (this.y > H+20) this.y = -20;
+
+        // Slowly shift hue
+        this.hue = (this.hue + 0.4) % 360;
+      }
+
+      draw() {
+        // Draw trail
+        for (let i = 0; i < this.trail.length; i++) {
+          const a = (i / this.trail.length) * this.alpha * 0.4;
+          const r = this.radius * (i / this.trail.length) * 0.8;
+          ctx.beginPath();
+          ctx.arc(this.trail[i].x, this.trail[i].y, Math.max(r, 0.1), 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(${this.hue}, 100%, 70%, ${a})`;
+          ctx.fill();
+        }
+
+        // Draw particle with glow
+        ctx.save();
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = `hsl(${this.hue}, 100%, 70%)`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${this.hue}, 100%, 80%, ${this.alpha})`;
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    for (let i = 0; i < COUNT; i++) particles.push(new Particle());
+
+    // ---- SHOOTING STARS ----
+    const stars = [];
+    class ShootingStar {
+      constructor() { this.reset(); }
+      reset() {
+        this.x  = Math.random() * W;
+        this.y  = Math.random() * H * 0.5;
+        this.vx = (Math.random() * 6 + 4) * (Math.random() < 0.5 ? 1 : -1);
+        this.vy = Math.random() * 3 + 1;
+        this.len = Math.random() * 120 + 60;
+        this.alpha = 1;
+        this.hue = Math.random() * 60 + 160;
+        this.active = false;
+        this.timer = Math.random() * 200;
+      }
+      update() {
+        if (!this.active) { this.timer--; if (this.timer <= 0) this.active = true; return; }
+        this.x += this.vx;
+        this.y += this.vy;
+        this.alpha -= 0.015;
+        if (this.alpha <= 0 || this.x < -200 || this.x > W+200 || this.y > H+100) this.reset();
+      }
+      draw() {
+        if (!this.active) return;
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        const grad = ctx.createLinearGradient(this.x, this.y, this.x - this.vx * 10, this.y - this.vy * 10);
+        grad.addColorStop(0, `hsl(${this.hue}, 100%, 90%)`);
+        grad.addColorStop(1, `hsla(${this.hue}, 100%, 70%, 0)`);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x - this.vx * 10, this.y - this.vy * 10);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    for (let i = 0; i < 6; i++) stars.push(new ShootingStar());
+
+    // ---- CONNECTIONS ----
+    function drawConnections() {
+      const lc = theme().lineColor;
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const d = Math.sqrt(dx*dx + dy*dy);
+          if (d < 120) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = lc((1 - d/120) * 0.35);
+            ctx.lineWidth = 0.6;
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    // ---- WAVE OVERLAY ----
+    function drawWaves(t) {
+      for (let w = 0; w < 3; w++) {
+        ctx.beginPath();
+        ctx.moveTo(0, H);
+        for (let x = 0; x <= W; x += 4) {
+          const y = H * 0.75
+            + Math.sin(x * 0.008 + t * 0.02 + w * 1.2) * 35
+            + Math.sin(x * 0.015 + t * 0.015 + w * 0.8) * 20;
+          ctx.lineTo(x, y);
+        }
+        ctx.lineTo(W, H);
+        ctx.closePath();
+        const wAlpha = darkMode ? 0.04 : 0.06;
+        ctx.fillStyle = `hsla(${(hue + w*40)%360}, 100%, 70%, ${wAlpha})`;
+        ctx.fill();
+      }
+    }
+
+    // ---- ANIMATE ----
+    function animate() {
+      requestAnimationFrame(animate);
+      time++;
+      hue = (hue + 0.25) % 360;
+
+      const t = theme();
+
+      // Background gradient
+      const grad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W * 0.9);
+      grad.addColorStop(0, t.bg1(hue));
+      grad.addColorStop(1, t.bg2(hue));
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+
+      drawWaves(time);
+      drawConnections();
+
+      particles.forEach(p => { p.update(time); p.draw(); });
+      stars.forEach(s => { s.update(); s.draw(); });
+    }
+
+    animate();
+  </script>
+</body>
+</html>
