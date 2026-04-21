@@ -1,0 +1,26 @@
+src/components/KanbanBoard.tsx
+  462336f996a58ea0 3-4
+src/components/Dashboard.tsx
+  462336f996a58ea0 2-3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.2",
+  "base_commit_sha": "35074e3c7751c2160c4bd3de2281f180f6e908dd",
+  "prompts": {
+    "462336f996a58ea0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "03463293-4e76-46c9-9b1b-2ce8a3c4316d",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "mvynnyk",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 2,
+      "accepted_lines": 910,
+      "overriden_lines": 0,
+      "messages_url": "https://code-attributor-uat-devtools.aks.cosmote.gr/cas/4ae966c06690f3e54ae62c255fceeefecbce4b336feaa0420c86bd480f334551"
+    }
+  }
+}
