@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #F7F5F2;
+  --color-navy: #0B1437;
+  --color-indigo: #4F46E5;
+  --color-teal: #0D9488;
+  --color-surface: #FFFFFF;
+  --color-border: #E2E8F0;
+  --font-sora: 'Roboto', Arial, Helvetica, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Menlo', monospace;
+}
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background-color: #F7F5F2;
+  font-family: 'Roboto', Arial, Helvetica, sans-serif;
+  color: #0F172A;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Fade in up ─────────────────────────────────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.35s ease-out forwards;
+}
+
+/* ── Toast slide in ─────────────────────────────────────────────────────── */
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-in-right {
+  animation: slideInRight 0.25s ease-out forwards;
+}
+
+/* ── Card entrance ──────────────────────────────────────────────────────── */
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Progress bar fill ──────────────────────────────────────────────────── */
+@keyframes progressIn {
+  from { width: 0 !important; }
+}
+.progress-bar {
+  animation: progressIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.15s both;
+}
+
+/* ── Donut draw ─────────────────────────────────────────────────────────── */
+@keyframes donutFill {
+  from { stroke-dasharray: 0 999; }
+}
+.donut-arc {
+  animation: donutFill 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ── Spin ───────────────────────────────────────────────────────────────── */
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Stat pill count-up ─────────────────────────────────────────────────── */
+@keyframes statIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.stat-in {
+  animation: statIn 0.4s ease-out both;
+}
+
+/* ── Gradient text ──────────────────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(130deg, #4F46E5 0%, #0D9488 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Custom scrollbar ───────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
