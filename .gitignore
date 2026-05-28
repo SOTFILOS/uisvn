@@ -20,7 +20,7 @@ bin/
 /nbproject/private/
 /nbbuild/
 /dist/
-/nbdist/
+/nbdist/\
 /.nb-gradle/
 
 ### VS Code ###
@@ -28,3 +28,7 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+node_modules
+.vite
+dist
+.env
